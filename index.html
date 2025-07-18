@@ -5,14 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EarnX Admin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     body {
-      margin: 0; padding: 0; background: #f6f8fb; color: #222;
+      margin: 0; 
+      padding: 0; 
+      background: #f6f8fb; 
+      color: #222;
       font-family: 'Segoe UI', 'Roboto', sans-serif;
-      display: flex; justify-content: center; align-items: center; min-height: 100vh;
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      min-height: 100vh;
     }
     .admin-container {
       width: 100%; max-width: 520px; background: #f6f8fb;
@@ -86,15 +89,31 @@
       transition: background 0.2s;
     }
     .edit-box button:hover, .notice-edit-box button:hover, .ad-point-edit-box button:hover, .connect-edit-box button:hover { background: #38f9d7; color: #222; }
-    .ad-limit-box button {
-      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
-      transition: background 0.2s;
-      margin-left: 8px;
+    .ad-point-edit-box button {
+      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-left: 6px;
     }
-    .ad-limit-box button:hover { background: #38f9d7; color: #222; }
-    .current-value {
-      font-size:14px;color:#888;margin-top:4px;word-break:break-all;
+    .ad-point-edit-box button:last-child { background: #fa709a; }
+    .ad-point-edit-box button:hover { background: #38f9d7; color: #222; }
+    .edit-balance-box {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
     }
+    .edit-balance-box input {
+      width: 80px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #e3e8f0; font-size: 15px;
+      background: #fff;
+    }
+    .edit-balance-box button {
+      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s; margin-left: 6px;
+    }
+    .edit-balance-box button:last-child { background: #fa709a; }
+    .edit-balance-box button:hover { background: #38f9d7; color: #222; }
+    .current-value { font-size:14px;color:#888;margin-top:4px;word-break:break-all; }
+    .admin-footer { text-align: center; color: #888; font-size: 13px; padding: 10px 0 18px 0; }
+    .user-list { max-height: 120px; overflow-y: auto; margin-top: 8px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px #4f8cff11; padding: 4px 0; border: 1px solid #e3e8f0; }
+    .user-item { display: flex; align-items: center; justify-content: space-between; background: #f6f8fb; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; }
+    .user-item .user-name { font-weight: 600; }
+    .user-item .block-btn { background: #fa709a; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; margin-left: 8px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
+    .user-item .block-btn.unblock { background: #43e97b; }
     .withdraw-list { max-height: 180px; overflow-y: auto; margin-top: 8px; }
     .withdraw-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; flex-wrap: wrap; border: 1px solid #e3e8f0; }
     .withdraw-item .user-info { flex: 1; min-width: 120px; }
@@ -106,17 +125,6 @@
     .withdraw-actions button { background: #43e97b; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-left: 6px; transition: background 0.2s; }
     .withdraw-actions button.reject { background: #fa709a; }
     .withdraw-actions button:hover { opacity: 0.85;}
-    .edit-balance-box { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
-    .edit-balance-box input { width: 80px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #e3e8f0; font-size: 15px; background: #fff; }
-    .edit-balance-box button { background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-    .edit-balance-box button:last-child { background: #fa709a; }
-    .edit-balance-box button:hover { background: #38f9d7; color: #222; }
-    .user-list { max-height: 120px; overflow-y: auto; margin-top: 8px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px #4f8cff11; padding: 4px 0; border: 1px solid #e3e8f0; }
-    .user-item { display: flex; align-items: center; justify-content: space-between; background: #f6f8fb; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; }
-    .user-item .user-name { font-weight: 600; }
-    .user-item .block-btn { background: #fa709a; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; margin-left: 8px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
-    .user-item .block-btn.unblock { background: #43e97b; }
-    .admin-footer { text-align: center; color: #888; font-size: 13px; padding: 10px 0 18px 0; }
     @media (max-width: 600px) {
       body { align-items: flex-start; }
       .admin-container { border-radius: 0; min-height: 100vh;}
@@ -152,6 +160,15 @@
           </div>
           <div class="current-value">Current: <span id="current-ad-point"></span> point(s) per ad</div>
         </div>
+        <!-- Point to Dollar Rate Control -->
+        <div class="admin-section-title"><i class="fa-solid fa-dollar-sign"></i> Point to Dollar Rate</div>
+        <div class="admin-card">
+          <div class="ad-point-edit-box">
+            <input type="number" id="rate-input" min="0.0001" step="0.0001" placeholder="Dollar per point (e.g. 0.05)" />
+            <button onclick="setRate()">Set Rate</button>
+          </div>
+          <div class="current-value">Current: <span id="current-rate"></span> dollar per point</div>
+        </div>
         <!-- Refer Commission Control -->
         <div class="admin-section-title"><i class="fa-solid fa-user-plus"></i> Refer Commission</div>
         <div class="admin-card">
@@ -181,23 +198,19 @@
             <!-- User items will be loaded here -->
           </div>
         </div>
-        <!-- Ad Limit Section -->
-        <div class="admin-section-title"><i class="fa-solid fa-rectangle-ad"></i> Daily Ad Limit</div>
-        <div class="admin-card ad-limit-box">
-          <input type="number" id="ad-limit" placeholder="Daily Ad Limit" />
-          <button onclick="setAdLimit()">Set Limit</button>
-          <div style="font-size:13px;color:#888;margin-top:8px;">
-            Current daily ad limit: <span id="current-ad-limit">10</span>
-          </div>
-        </div>
-        <!-- Connect Link Edit -->
-        <div class="admin-section-title"><i class="fa-solid fa-link"></i> Connect With Us Link</div>
+        <!-- Monetag Ad Code Control -->
+        <div class="admin-section-title"><i class="fa-solid fa-ad"></i> Monetag Ad Code</div>
         <div class="admin-card">
-          <div class="connect-edit-box">
-            <input type="text" id="connect-input" placeholder="Paste your contact link..." />
-            <button onclick="setConnectLink()">Set Link</button>
+          <div class="ad-point-edit-box">
+            <input type="text" id="monetag-adcode-input" placeholder="Paste Monetag ad code here..." />
+            <button onclick="setMonetagAdCode()">Set Ad Code</button>
           </div>
-          <div class="current-value">Current: <span id="current-connect"></span></div>
+          <div class="current-value" style="word-break:break-all;">Current: <span id="current-monetag-adcode"></span></div>
+        </div>
+        <div style="font-size:13px;color:#888;">
+          <b>How to use?</b><br>
+          Paste your Monetag (or any ad network) ad code here.<br>
+          ইউজাররা যখন Watch Ad-এ ক্লিক করবে, তখন এই এড দেখাবে।
         </div>
       </div>
     </div>
@@ -206,17 +219,17 @@
     </div>
   </div>
   <script>
-    // Firebase config
-    const firebaseConfig = {
-      apiKey: "AIzaSyCB4GocXMbka1e8NSEiJnsEkKm39_t6KRE",
-      authDomain: "earnx25-admin.firebaseapp.com",
-      projectId: "earnx25-admin",
-      storageBucket: "earnx25-admin.appspot.com",
-      messagingSenderId: "248014987232",
-      appId: "1:248014987232:web:f5e0fc0ed57c3a36009585"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    // Monetag Ad Code Control
+    let monetagAdCode = localStorage.getItem('monetagAdCode') || '';
+    document.getElementById('current-monetag-adcode').textContent = monetagAdCode ? monetagAdCode : 'Not set';
+    function setMonetagAdCode() {
+      let val = document.getElementById('monetag-adcode-input').value.trim();
+      if(val) {
+        localStorage.setItem('monetagAdCode', val);
+        document.getElementById('current-monetag-adcode').textContent = val;
+        alert("Monetag ad code updated!");
+      }
+    }
 
     // Notice
     let notice = localStorage.getItem('notice') || "Welcome to Nobin's EarnX! 🎉";
@@ -242,6 +255,19 @@
         alert("Enter a valid number!");
       }
     }
+    // Point to Dollar Rate Control
+    let ratePerPoint = parseFloat(localStorage.getItem('ratePerPoint') || '0.05');
+    document.getElementById('current-rate').textContent = ratePerPoint;
+    function setRate() {
+      let val = parseFloat(document.getElementById('rate-input').value);
+      if(!isNaN(val) && val > 0) {
+        localStorage.setItem('ratePerPoint', val);
+        document.getElementById('current-rate').textContent = val;
+        alert("Point to dollar rate updated!");
+      } else {
+        alert("Enter a valid number!");
+      }
+    }
     // Refer Commission Control
     let referCommission = parseInt(localStorage.getItem('referCommission') || '2');
     document.getElementById('current-refer-commission').textContent = referCommission;
@@ -253,17 +279,6 @@
         alert("Refer commission updated!");
       } else {
         alert("Enter a valid number!");
-      }
-    }
-    // Connect Link
-    let connectLink = localStorage.getItem('connectLink') || "https://t.me/nobin_support";
-    document.getElementById('current-connect').textContent = connectLink;
-    function setConnectLink() {
-      let val = document.getElementById('connect-input').value.trim();
-      if(val) {
-        localStorage.setItem('connectLink', val);
-        document.getElementById('current-connect').textContent = val;
-        alert("Connect link updated!");
       }
     }
     // Withdraws (ডেমো)
@@ -308,77 +323,55 @@
         alert(`Withdraw for ${w.name} rejected!`);
       }
     }
-
-    // User List (Firebase থেকে)
-    function loadUsersFromFirebase() {
-      db.ref('users').once('value', function(snapshot) {
-        let users = [];
-        snapshot.forEach(function(child) {
-          users.push(child.val());
-        });
-        let html = "";
-        users.forEach(u => {
-          html += `<div class="user-item">
-            <span class="user-name">${u.name} (ID: ${u.id})</span>
-            <span>$${u.balance ? u.balance.toFixed(2) : "0.00"}</span>
-            <button class="block-btn${u.status==='blocked'?' unblock':''}" onclick="toggleBlock(${u.id})">
-              ${u.status==='blocked'?'Unblock':'Block'}
-            </button>
-          </div>`;
-        });
-        document.getElementById('user-list').innerHTML = html || "<div style='color:#aaa'>No users found.</div>";
-      });
-    }
-    loadUsersFromFirebase();
-
+    // User List (ডেমো)
+    let users = [
+      {id: 101, name: "Demo User", balance: 0, status: "active"}
+    ];
     function addBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
-      if(!isNaN(id) && !isNaN(amt)) {
-        let userRef = db.ref('users/' + id);
-        userRef.once('value', function(snapshot) {
-          if(snapshot.exists()) {
-            let user = snapshot.val();
-            user.balance += amt;
-            userRef.update({ balance: user.balance });
-            loadUsersFromFirebase();
-            alert(`Added $${amt} to ${user.name}`);
-          } else {
-            alert("User not found!");
-          }
-        });
+      let u = users.find(x=>x.id===id);
+      if(u && !isNaN(amt)) {
+        u.balance += amt;
+        loadUsers();
+        alert(`Added $${amt} to ${u.name}`);
+      } else {
+        alert("User not found or invalid amount!");
       }
     }
     function subtractBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
-      if(!isNaN(id) && !isNaN(amt)) {
-        let userRef = db.ref('users/' + id);
-        userRef.once('value', function(snapshot) {
-          if(snapshot.exists()) {
-            let user = snapshot.val();
-            user.balance -= amt;
-            if(user.balance < 0) user.balance = 0;
-            userRef.update({ balance: user.balance });
-            loadUsersFromFirebase();
-            alert(`Subtracted $${amt} from ${user.name}`);
-          } else {
-            alert("User not found!");
-          }
-        });
+      let u = users.find(x=>x.id===id);
+      if(u && !isNaN(amt)) {
+        u.balance -= amt;
+        if(u.balance < 0) u.balance = 0;
+        loadUsers();
+        alert(`Subtracted $${amt} from ${u.name}`);
+      } else {
+        alert("User not found or invalid amount!");
       }
     }
-    function toggleBlock(id) {
-      let userRef = db.ref('users/' + id);
-      userRef.once('value', function(snapshot) {
-        if(snapshot.exists()) {
-          let user = snapshot.val();
-          user.status = user.status === 'blocked' ? 'active' : 'blocked';
-          userRef.update({ status: user.status });
-          loadUsersFromFirebase();
-          alert(`${user.name} is now ${user.status}!`);
-        }
+    function loadUsers() {
+      let html = "";
+      users.forEach(u => {
+        html += `<div class="user-item">
+          <span class="user-name">${u.name} (ID: ${u.id})</span>
+          <span>$${u.balance.toFixed(2)}</span>
+          <button class="block-btn${u.status==='blocked'?' unblock':''}" onclick="toggleBlock(${u.id})">
+            ${u.status==='blocked'?'Unblock':'Block'}
+          </button>
+        </div>`;
       });
+      document.getElementById('user-list').innerHTML = html || "<div style='color:#aaa'>No users found.</div>";
+    }
+    function toggleBlock(id) {
+      let u = users.find(x=>x.id===id);
+      if(u) {
+        u.status = u.status==='blocked'?'active':'blocked';
+        loadUsers();
+        alert(`${u.name} is now ${u.status}!`);
+      }
     }
     // Ad limit
     let dailyAdLimit = 10;
@@ -395,6 +388,7 @@
     }
     // Initial load
     loadWithdraws();
+    loadUsers();
   </script>
 </body>
 </html>
