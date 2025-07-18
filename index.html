@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EarnX Admin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     body {
       margin: 0; 
@@ -260,6 +263,18 @@
     </div>
   </div>
   <script>
+    // Firebase config (এডমিন প্যানেলে ইউজার লোডের জন্য)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCB4GocXMbka1e8NSEiJnsEkKm39_t6KRE",
+      authDomain: "earnx25-admin.firebaseapp.com",
+      projectId: "earnx25-admin",
+      storageBucket: "earnx25-admin.appspot.com",
+      messagingSenderId: "248014987232",
+      appId: "1:248014987232:web:f5e0fc0ed57c3a36009585"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     // Monetag Ad Code Control
     let monetagAdCode = localStorage.getItem('monetagAdCode') || '';
     document.getElementById('current-monetag-adcode').textContent = monetagAdCode ? monetagAdCode : 'Not set';
@@ -375,53 +390,76 @@
         alert(`Withdraw for ${w.name} rejected!`);
       }
     }
-    // User List (খালি অ্যারে, কোনো ডেমো ইউজার নেই)
-    let users = [];
+    // User List (Firebase থেকে)
+    function loadUsersFromFirebase() {
+      db.ref('users').once('value', function(snapshot) {
+        let users = [];
+        snapshot.forEach(function(child) {
+          users.push(child.val());
+        });
+        let html = "";
+        users.forEach(u => {
+          html += `<div class="user-item">
+            <span class="user-name">${u.name} (ID: ${u.id})</span>
+            <span>$${u.balance ? u.balance.toFixed(2) : "0.00"}</span>
+            <button class="block-btn${u.status==='blocked'?' unblock':''}" onclick="toggleBlock(${u.id})">
+              ${u.status==='blocked'?'Unblock':'Block'}
+            </button>
+          </div>`;
+        });
+        document.getElementById('user-list').innerHTML = html || "<div style='color:#aaa'>No users found.</div>";
+      });
+    }
+    loadUsersFromFirebase();
+
     function addBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
-      let u = users.find(x=>x.id===id);
-      if(u && !isNaN(amt)) {
-        u.balance += amt;
-        loadUsers();
-        alert(`Added $${amt} to ${u.name}`);
-      } else {
-        alert("User not found or invalid amount!");
+      if(!isNaN(id) && !isNaN(amt)) {
+        let userRef = db.ref('users/' + id);
+        userRef.once('value', function(snapshot) {
+          if(snapshot.exists()) {
+            let user = snapshot.val();
+            user.balance += amt;
+            userRef.update({ balance: user.balance });
+            loadUsersFromFirebase();
+            alert(`Added $${amt} to ${user.name}`);
+          } else {
+            alert("User not found!");
+          }
+        });
       }
     }
     function subtractBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
-      let u = users.find(x=>x.id===id);
-      if(u && !isNaN(amt)) {
-        u.balance -= amt;
-        if(u.balance < 0) u.balance = 0;
-        loadUsers();
-        alert(`Subtracted $${amt} from ${u.name}`);
-      } else {
-        alert("User not found or invalid amount!");
+      if(!isNaN(id) && !isNaN(amt)) {
+        let userRef = db.ref('users/' + id);
+        userRef.once('value', function(snapshot) {
+          if(snapshot.exists()) {
+            let user = snapshot.val();
+            user.balance -= amt;
+            if(user.balance < 0) user.balance = 0;
+            userRef.update({ balance: user.balance });
+            loadUsersFromFirebase();
+            alert(`Subtracted $${amt} from ${user.name}`);
+          } else {
+            alert("User not found!");
+          }
+        });
       }
-    }
-    function loadUsers() {
-      let html = "";
-      users.forEach(u => {
-        html += `<div class="user-item">
-          <span class="user-name">${u.name} (ID: ${u.id})</span>
-          <span>$${u.balance.toFixed(2)}</span>
-          <button class="block-btn${u.status==='blocked'?' unblock':''}" onclick="toggleBlock(${u.id})">
-            ${u.status==='blocked'?'Unblock':'Block'}
-          </button>
-        </div>`;
-      });
-      document.getElementById('user-list').innerHTML = html || "<div style='color:#aaa'>No users found.</div>";
     }
     function toggleBlock(id) {
-      let u = users.find(x=>x.id===id);
-      if(u) {
-        u.status = u.status==='blocked'?'active':'blocked';
-        loadUsers();
-        alert(`${u.name} is now ${u.status}!`);
-      }
+      let userRef = db.ref('users/' + id);
+      userRef.once('value', function(snapshot) {
+        if(snapshot.exists()) {
+          let user = snapshot.val();
+          user.status = user.status === 'blocked' ? 'active' : 'blocked';
+          userRef.update({ status: user.status });
+          loadUsersFromFirebase();
+          alert(`${user.name} is now ${user.status}!`);
+        }
+      });
     }
     // Ad limit
     let dailyAdLimit = 10;
@@ -438,7 +476,6 @@
     }
     // Initial load
     loadWithdraws();
-    loadUsers();
   </script>
 </body>
 </html>
