@@ -125,6 +125,30 @@
     .withdraw-actions button { background: #43e97b; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-left: 6px; transition: background 0.2s; }
     .withdraw-actions button.reject { background: #fa709a; }
     .withdraw-actions button:hover { opacity: 0.85;}
+    .ad-limit-box button {
+      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s;
+      margin-left: 8px;
+    }
+    .ad-limit-box button:hover { background: #38f9d7; color: #222; }
+    .connect-edit-box {
+      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    }
+    .connect-edit-box input {
+      flex: 1;
+      padding: 10px 12px; border-radius: 8px; border: 1.5px solid #e3e8f0; font-size: 15px;
+      background: #fff;
+      transition: border 0.2s;
+    }
+    .connect-edit-box input:focus {
+      border: 1.5px solid #4f8cff;
+      outline: none;
+    }
+    .connect-edit-box button {
+      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .connect-edit-box button:hover { background: #38f9d7; color: #222; }
     @media (max-width: 600px) {
       body { align-items: flex-start; }
       .admin-container { border-radius: 0; min-height: 100vh;}
@@ -198,6 +222,24 @@
             <!-- User items will be loaded here -->
           </div>
         </div>
+        <!-- Daily Ad Limit -->
+        <div class="admin-section-title"><i class="fa-solid fa-rectangle-ad"></i> Daily Ad Limit</div>
+        <div class="admin-card ad-limit-box">
+          <input type="number" id="ad-limit" placeholder="Daily Ad Limit" />
+          <button onclick="setAdLimit()">Set Limit</button>
+          <div style="font-size:13px;color:#888;margin-top:8px;">
+            Current daily ad limit: <span id="current-ad-limit">10</span>
+          </div>
+        </div>
+        <!-- Connect Link Edit -->
+        <div class="admin-section-title"><i class="fa-solid fa-link"></i> Connect With Us Link</div>
+        <div class="admin-card">
+          <div class="connect-edit-box">
+            <input type="text" id="connect-input" placeholder="Paste your contact link..." />
+            <button onclick="setConnectLink()">Set Link</button>
+          </div>
+          <div class="current-value">Current: <span id="current-connect"></span></div>
+        </div>
         <!-- Monetag Ad Code Control -->
         <div class="admin-section-title"><i class="fa-solid fa-ad"></i> Monetag Ad Code</div>
         <div class="admin-card">
@@ -209,8 +251,7 @@
         </div>
         <div style="font-size:13px;color:#888;">
           <b>How to use?</b><br>
-          Paste your Monetag (or any ad network) ad code here.<br>
-          ইউজাররা যখন Watch Ad-এ ক্লিক করবে, তখন এই এড দেখাবে।
+          Paste your Monetag (or any ad network) ad code here.
         </div>
       </div>
     </div>
@@ -281,6 +322,17 @@
         alert("Enter a valid number!");
       }
     }
+    // Connect Link
+    let connectLink = localStorage.getItem('connectLink') || "https://t.me/nobin_support";
+    document.getElementById('current-connect').textContent = connectLink;
+    function setConnectLink() {
+      let val = document.getElementById('connect-input').value.trim();
+      if(val) {
+        localStorage.setItem('connectLink', val);
+        document.getElementById('current-connect').textContent = val;
+        alert("Connect link updated!");
+      }
+    }
     // Withdraws (ডেমো)
     let withdraws = JSON.parse(localStorage.getItem('withdrawRequests') || '[]');
     function loadWithdraws() {
@@ -323,10 +375,8 @@
         alert(`Withdraw for ${w.name} rejected!`);
       }
     }
-    // User List (ডেমো)
-    let users = [
-      {id: 101, name: "Demo User", balance: 0, status: "active"}
-    ];
+    // User List (খালি অ্যারে, কোনো ডেমো ইউজার নেই)
+    let users = [];
     function addBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
