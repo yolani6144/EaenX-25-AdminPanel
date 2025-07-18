@@ -275,13 +275,15 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Monetag Ad Code Control
-    let monetagAdCode = localStorage.getItem('monetagAdCode') || '';
-    document.getElementById('current-monetag-adcode').textContent = monetagAdCode ? monetagAdCode : 'Not set';
+    // Monetag Ad Code Control (Firebase-এ সেভ)
+    db.ref('adcode').once('value', function(snapshot) {
+      let monetagAdCode = snapshot.val() || '';
+      document.getElementById('current-monetag-adcode').textContent = monetagAdCode ? monetagAdCode : 'Not set';
+    });
     function setMonetagAdCode() {
       let val = document.getElementById('monetag-adcode-input').value.trim();
       if(val) {
-        localStorage.setItem('monetagAdCode', val);
+        db.ref('adcode').set(val);
         document.getElementById('current-monetag-adcode').textContent = val;
         alert("Monetag ad code updated!");
       }
