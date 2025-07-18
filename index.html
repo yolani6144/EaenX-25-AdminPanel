@@ -5,12 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EarnX Admin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
-    /* ... আগের CSS ... (একই রাখো, উপরে দেওয়া মতো) ... */
     body {
       margin: 0; padding: 0; background: #f6f8fb; color: #222;
       font-family: 'Segoe UI', 'Roboto', sans-serif;
-      display: flex; justify-content: center; align-items: flex-start; min-height: 100vh;
+      display: flex; justify-content: center; align-items: center; min-height: 100vh;
     }
     .admin-container {
       width: 100%; max-width: 520px; background: #f6f8fb;
@@ -93,7 +95,6 @@
     .current-value {
       font-size:14px;color:#888;margin-top:4px;word-break:break-all;
     }
-    /* ... বাকি CSS আগের মতোই ... */
     .withdraw-list { max-height: 180px; overflow-y: auto; margin-top: 8px; }
     .withdraw-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; flex-wrap: wrap; border: 1px solid #e3e8f0; }
     .withdraw-item .user-info { flex: 1; min-width: 120px; }
@@ -117,6 +118,7 @@
     .user-item .block-btn.unblock { background: #43e97b; }
     .admin-footer { text-align: center; color: #888; font-size: 13px; padding: 10px 0 18px 0; }
     @media (max-width: 600px) {
+      body { align-items: flex-start; }
       .admin-container { border-radius: 0; min-height: 100vh;}
       .admin-main { padding: 12px 4px 12px 4px;}
       .admin-header { padding: 22px 10px 12px 10px; font-size: 20px;}
@@ -204,6 +206,18 @@
     </div>
   </div>
   <script>
+    // Firebase config
+    const firebaseConfig = {
+      apiKey: "AIzaSyCB4GocXMbka1e8NSEiJnsEkKm39_t6KRE",
+      authDomain: "earnx25-admin.firebaseapp.com",
+      projectId: "earnx25-admin",
+      storageBucket: "earnx25-admin.appspot.com",
+      messagingSenderId: "248014987232",
+      appId: "1:248014987232:web:f5e0fc0ed57c3a36009585"
+    };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
     // Notice
     let notice = localStorage.getItem('notice') || "Welcome to Nobin's EarnX! 🎉";
     document.getElementById('current-notice').textContent = notice;
@@ -294,59 +308,77 @@
         alert(`Withdraw for ${w.name} rejected!`);
       }
     }
-    // User List (ডেমো)
-    let users = [
-      {id: 101, name: "CryptoKing", balance: 12.5, status: "active"},
-      {id: 102, name: "Elena", balance: 8.0, status: "active"},
-      {id: 103, name: "ProMiner", balance: 0.0, status: "blocked"},
-      {id: 104, name: "Aisha", balance: 5.0, status: "active"},
-      {id: 105, name: "BotMaster", balance: 0.0, status: "active"},
-    ];
+
+    // User List (Firebase থেকে)
+    function loadUsersFromFirebase() {
+      db.ref('users').once('value', function(snapshot) {
+        let users = [];
+        snapshot.forEach(function(child) {
+          users.push(child.val());
+        });
+        let html = "";
+        users.forEach(u => {
+          html += `<div class="user-item">
+            <span class="user-name">${u.name} (ID: ${u.id})</span>
+            <span>$${u.balance ? u.balance.toFixed(2) : "0.00"}</span>
+            <button class="block-btn${u.status==='blocked'?' unblock':''}" onclick="toggleBlock(${u.id})">
+              ${u.status==='blocked'?'Unblock':'Block'}
+            </button>
+          </div>`;
+        });
+        document.getElementById('user-list').innerHTML = html || "<div style='color:#aaa'>No users found.</div>";
+      });
+    }
+    loadUsersFromFirebase();
+
     function addBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
-      let u = users.find(x=>x.id===id);
-      if(u && !isNaN(amt)) {
-        u.balance += amt;
-        loadUsers();
-        alert(`Added $${amt} to ${u.name}`);
-      } else {
-        alert("User not found or invalid amount!");
+      if(!isNaN(id) && !isNaN(amt)) {
+        let userRef = db.ref('users/' + id);
+        userRef.once('value', function(snapshot) {
+          if(snapshot.exists()) {
+            let user = snapshot.val();
+            user.balance += amt;
+            userRef.update({ balance: user.balance });
+            loadUsersFromFirebase();
+            alert(`Added $${amt} to ${user.name}`);
+          } else {
+            alert("User not found!");
+          }
+        });
       }
     }
     function subtractBalance() {
       let id = parseInt(document.getElementById('edit-user-id').value);
       let amt = parseFloat(document.getElementById('edit-balance').value);
-      let u = users.find(x=>x.id===id);
-      if(u && !isNaN(amt)) {
-        u.balance -= amt;
-        if(u.balance < 0) u.balance = 0;
-        loadUsers();
-        alert(`Subtracted $${amt} from ${u.name}`);
-      } else {
-        alert("User not found or invalid amount!");
+      if(!isNaN(id) && !isNaN(amt)) {
+        let userRef = db.ref('users/' + id);
+        userRef.once('value', function(snapshot) {
+          if(snapshot.exists()) {
+            let user = snapshot.val();
+            user.balance -= amt;
+            if(user.balance < 0) user.balance = 0;
+            userRef.update({ balance: user.balance });
+            loadUsersFromFirebase();
+            alert(`Subtracted $${amt} from ${user.name}`);
+          } else {
+            alert("User not found!");
+          }
+        });
       }
-    }
-    function loadUsers() {
-      let html = "";
-      users.forEach(u => {
-        html += `<div class="user-item">
-          <span class="user-name">${u.name} (ID: ${u.id})</span>
-          <span>$${u.balance.toFixed(2)}</span>
-          <button class="block-btn${u.status==='blocked'?' unblock':''}" onclick="toggleBlock(${u.id})">
-            ${u.status==='blocked'?'Unblock':'Block'}
-          </button>
-        </div>`;
-      });
-      document.getElementById('user-list').innerHTML = html || "<div style='color:#aaa'>No users found.</div>";
     }
     function toggleBlock(id) {
-      let u = users.find(x=>x.id===id);
-      if(u) {
-        u.status = u.status==='blocked'?'active':'blocked';
-        loadUsers();
-        alert(`${u.name} is now ${u.status}!`);
-      }
+      let userRef = db.ref('users/' + id);
+      userRef.once('value', function(snapshot) {
+        if(snapshot.exists()) {
+          let user = snapshot.val();
+          user.status = user.status === 'blocked' ? 'active' : 'blocked';
+          userRef.update({ status: user.status });
+          loadUsersFromFirebase();
+          alert(`${user.name} is now ${user.status}!`);
+        }
+      });
     }
     // Ad limit
     let dailyAdLimit = 10;
@@ -363,7 +395,6 @@
     }
     // Initial load
     loadWithdraws();
-    loadUsers();
   </script>
 </body>
 </html>
