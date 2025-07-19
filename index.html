@@ -410,12 +410,13 @@
       });
     }
     // Ad limit
-    let dailyAdLimit = 10;
+    let dailyAdLimit = parseInt(localStorage.getItem('dailyAdLimit') || '10');
     document.getElementById('current-ad-limit').textContent = dailyAdLimit;
     function setAdLimit() {
       let val = parseInt(document.getElementById('ad-limit').value);
       if(!isNaN(val) && val > 0) {
         dailyAdLimit = val;
+        localStorage.setItem('dailyAdLimit', dailyAdLimit);
         document.getElementById('current-ad-limit').textContent = dailyAdLimit;
         alert("Daily ad limit set to " + dailyAdLimit);
       } else {
