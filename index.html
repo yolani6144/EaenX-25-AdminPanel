@@ -5,28 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>EarnX Admin Panel</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
   <style>
     body {
-      margin: 0; 
-      padding: 0; 
-      background: #f6f8fb; 
-      color: #222;
+      margin: 0; padding: 0; background: #f6f8fb; color: #222;
       font-family: 'Segoe UI', 'Roboto', sans-serif;
-      display: flex; 
-      justify-content: center; 
-      align-items: center;
       min-height: 100vh;
     }
     .admin-container {
-      width: 100%; max-width: 520px; background: #f6f8fb;
+      width: 100%; max-width: 480px; background: #f6f8fb;
       border-radius: 22px; box-shadow: 0 8px 32px 0 rgba(79,140,255,0.10);
-      overflow: hidden; min-height: 700px;
+      overflow: hidden; min-height: 100vh;
       display: flex; flex-direction: column;
       border: 1.5px solid #e3e8f0;
-      margin: 30px 0;
+      margin: 0 auto;
       padding-bottom: 20px;
     }
     .admin-header {
@@ -36,7 +29,7 @@
       border-radius: 0 0 32px 32px;
       text-align: left;
       box-shadow: 0 2px 12px #4f8cff22;
-      font-size: 26px;
+      font-size: 24px;
       font-weight: 700;
       letter-spacing: 1px;
       display: flex; align-items: center; gap: 12px;
@@ -49,19 +42,19 @@
     }
     .admin-main {
       flex: 1;
-      padding: 24px 22px 22px 22px;
+      padding: 18px 8px 18px 8px;
     }
     .main-card {
       background: #fff;
       border-radius: 22px;
       box-shadow: 0 2px 16px #4f8cff11;
-      padding: 24px 18px 18px 18px;
+      padding: 18px 8px 10px 8px;
       margin-bottom: 22px;
     }
     .admin-section-title {
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       color: #4f8cff;
       letter-spacing: 1px;
       display: flex; align-items: center; gap: 8px;
@@ -70,53 +63,45 @@
       background: #f6f8fb;
       border-radius: 16px;
       box-shadow: 0 1px 4px #4f8cff11;
-      padding: 18px 16px;
-      margin-bottom: 22px;
+      padding: 14px 8px;
+      margin-bottom: 18px;
       border: 1.5px solid #e3e8f0;
     }
     .edit-box, .notice-edit-box, .ad-point-edit-box, .connect-edit-box {
       display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+      flex-wrap: wrap;
     }
     .edit-box input, .notice-edit-box input, .ad-point-edit-box input, .connect-edit-box input {
       flex: 1;
-      padding: 10px 12px; border-radius: 8px; border: 1.5px solid #e3e8f0; font-size: 15px;
+      padding: 13px 12px; border-radius: 10px; border: 1.5px solid #e3e8f0; font-size: 16px;
       background: #fff;
       transition: border 0.2s;
+      min-width: 0;
     }
     .edit-box input:focus, .notice-edit-box input:focus, .ad-point-edit-box input:focus, .connect-edit-box input:focus {
       border: 1.5px solid #4f8cff;
       outline: none;
     }
     .edit-box button, .notice-edit-box button, .ad-point-edit-box button, .connect-edit-box button {
-      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
+      background: linear-gradient(90deg,#4f8cff 0%,#43e97b 100%);
+      color: #fff; border: none; border-radius: 10px; padding: 13px 22px; font-size: 16px; font-weight: 700; cursor: pointer;
       transition: background 0.2s;
+      min-width: 90px;
     }
-    .edit-box button:hover, .notice-edit-box button:hover, .ad-point-edit-box button:hover, .connect-edit-box button:hover { background: #38f9d7; color: #222; }
-    .ad-point-edit-box button {
-      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer; transition: background 0.2s; margin-left: 6px;
+    .edit-box button:hover, .notice-edit-box button:hover, .ad-point-edit-box button:hover, .connect-edit-box button:hover { background: linear-gradient(90deg,#43e97b 0%,#4f8cff 100%);}
+    .ad-point-edit-box button.pink { background: #fa709a; }
+    .ad-point-edit-box button.pink:hover { background: #ffb6d5; color: #222;}
+    .ad-limit-box button {
+      background: linear-gradient(90deg,#4f8cff 0%,#43e97b 100%);
+      color: #fff; border: none; border-radius: 10px; padding: 13px 22px; font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: background 0.2s;
+      margin-left: 8px;
+      min-width: 90px;
     }
-    .ad-point-edit-box button:last-child { background: #fa709a; }
-    .ad-point-edit-box button:hover { background: #38f9d7; color: #222; }
-    .edit-balance-box {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
+    .ad-limit-box button:hover { background: linear-gradient(90deg,#43e97b 0%,#4f8cff 100%);}
+    .current-value {
+      font-size:14px;color:#888;margin-top:4px;word-break:break-all;
     }
-    .edit-balance-box input {
-      width: 80px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid #e3e8f0; font-size: 15px;
-      background: #fff;
-    }
-    .edit-balance-box button {
-      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 15px; font-weight: 700; cursor: pointer;
-      transition: background 0.2s; margin-left: 6px;
-    }
-    .edit-balance-box button:last-child { background: #fa709a; }
-    .edit-balance-box button:hover { background: #38f9d7; color: #222; }
-    .current-value { font-size:14px;color:#888;margin-top:4px;word-break:break-all; }
-    .admin-footer { text-align: center; color: #888; font-size: 13px; padding: 10px 0 18px 0; }
-    .user-list { max-height: 120px; overflow-y: auto; margin-top: 8px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px #4f8cff11; padding: 4px 0; border: 1px solid #e3e8f0; }
-    .user-item { display: flex; align-items: center; justify-content: space-between; background: #f6f8fb; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; }
-    .user-item .user-name { font-weight: 600; }
-    .user-item .block-btn { background: #fa709a; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; cursor: pointer; margin-left: 8px; font-size: 14px; font-weight: 600; transition: background 0.2s; }
-    .user-item .block-btn.unblock { background: #43e97b; }
     .withdraw-list { max-height: 180px; overflow-y: auto; margin-top: 8px; }
     .withdraw-item { display: flex; align-items: center; justify-content: space-between; background: #fff; border-radius: 10px; padding: 10px 12px; margin-bottom: 10px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; flex-wrap: wrap; border: 1px solid #e3e8f0; }
     .withdraw-item .user-info { flex: 1; min-width: 120px; }
@@ -125,39 +110,26 @@
     .withdraw-item .address { color: #4f8cff; font-size: 13px; cursor: pointer; background: #e3e8f0; border-radius: 6px; padding: 2px 8px; margin: 0 8px; transition: background 0.2s; word-break: break-all; display: inline-block; }
     .withdraw-item .address:hover { background: #d0e6ff; }
     .withdraw-item .amount { color: #ff8c00; font-weight: 700;}
-    .withdraw-actions button { background: #43e97b; color: #fff; border: none; border-radius: 6px; padding: 6px 14px; font-size: 14px; font-weight: 600; cursor: pointer; margin-left: 6px; transition: background 0.2s; }
+    .withdraw-actions button { background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; font-size: 15px; font-weight: 700; cursor: pointer; margin-left: 6px; transition: background 0.2s; }
     .withdraw-actions button.reject { background: #fa709a; }
     .withdraw-actions button:hover { opacity: 0.85;}
-    .ad-limit-box button {
-      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
-      transition: background 0.2s;
-      margin-left: 8px;
-    }
-    .ad-limit-box button:hover { background: #38f9d7; color: #222; }
-    .connect-edit-box {
-      display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
-    }
-    .connect-edit-box input {
-      flex: 1;
-      padding: 10px 12px; border-radius: 8px; border: 1.5px solid #e3e8f0; font-size: 15px;
-      background: #fff;
-      transition: border 0.2s;
-    }
-    .connect-edit-box input:focus {
-      border: 1.5px solid #4f8cff;
-      outline: none;
-    }
-    .connect-edit-box button {
-      background: #43e97b; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 15px; font-weight: 700; cursor: pointer;
-      transition: background 0.2s;
-    }
-    .connect-edit-box button:hover { background: #38f9d7; color: #222; }
+    .edit-balance-box { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; flex-wrap: wrap;}
+    .edit-balance-box input { width: 90px; padding: 13px 12px; border-radius: 10px; border: 1.5px solid #e3e8f0; font-size: 16px; background: #fff; }
+    .edit-balance-box button { background: linear-gradient(90deg,#4f8cff 0%,#43e97b 100%); color: #fff; border: none; border-radius: 10px; padding: 13px 22px; font-size: 16px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
+    .edit-balance-box button:last-child { background: #fa709a; }
+    .edit-balance-box button:hover { background: linear-gradient(90deg,#43e97b 0%,#4f8cff 100%);}
+    .user-list { max-height: 120px; overflow-y: auto; margin-top: 8px; background: #fff; border-radius: 10px; box-shadow: 0 1px 4px #4f8cff11; padding: 4px 0; border: 1px solid #e3e8f0; }
+    .user-item { display: flex; align-items: center; justify-content: space-between; background: #f6f8fb; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 15px; box-shadow: 0 1px 4px #4f8cff11; }
+    .user-item .user-name { font-weight: 600; }
+    .user-item .block-btn { background: #fa709a; color: #fff; border: none; border-radius: 8px; padding: 10px 18px; cursor: pointer; margin-left: 8px; font-size: 15px; font-weight: 700; transition: background 0.2s; }
+    .user-item .block-btn.unblock { background: #43e97b; }
+    .admin-footer { text-align: center; color: #888; font-size: 13px; padding: 10px 0 18px 0; }
     @media (max-width: 600px) {
       body { align-items: flex-start; }
       .admin-container { border-radius: 0; min-height: 100vh;}
-      .admin-main { padding: 12px 4px 12px 4px;}
-      .admin-header { padding: 22px 10px 12px 10px; font-size: 20px;}
-      .main-card { padding: 14px 4px 10px 4px;}
+      .admin-main { padding: 8px 2px 8px 2px;}
+      .admin-header { padding: 18px 6px 10px 6px; font-size: 18px;}
+      .main-card { padding: 8px 2px 8px 2px;}
     }
   </style>
 </head>
@@ -187,12 +159,12 @@
           </div>
           <div class="current-value">Current: <span id="current-ad-point"></span> point(s) per ad</div>
         </div>
-        <!-- Point to Dollar Rate Control -->
+        <!-- Point to Dollar Rate -->
         <div class="admin-section-title"><i class="fa-solid fa-dollar-sign"></i> Point to Dollar Rate</div>
         <div class="admin-card">
           <div class="ad-point-edit-box">
-            <input type="number" id="rate-input" min="0.0001" step="0.0001" placeholder="Dollar per point (e.g. 0.05)" />
-            <button onclick="setRate()">Set Rate</button>
+            <input type="number" id="rate-input" min="0.001" step="0.001" placeholder="Dollar per point (e.g. 0.05)" />
+            <button class="pink" onclick="setRate()">Set Rate</button>
           </div>
           <div class="current-value">Current: <span id="current-rate"></span> dollar per point</div>
         </div>
@@ -225,7 +197,7 @@
             <!-- User items will be loaded here -->
           </div>
         </div>
-        <!-- Daily Ad Limit -->
+        <!-- Ad Limit Section -->
         <div class="admin-section-title"><i class="fa-solid fa-rectangle-ad"></i> Daily Ad Limit</div>
         <div class="admin-card ad-limit-box">
           <input type="number" id="ad-limit" placeholder="Daily Ad Limit" />
@@ -243,19 +215,6 @@
           </div>
           <div class="current-value">Current: <span id="current-connect"></span></div>
         </div>
-        <!-- Monetag Ad Code Control -->
-        <div class="admin-section-title"><i class="fa-solid fa-ad"></i> Monetag Ad Code</div>
-        <div class="admin-card">
-          <div class="ad-point-edit-box">
-            <input type="text" id="monetag-adcode-input" placeholder="Paste Monetag ad code here..." />
-            <button onclick="setMonetagAdCode()">Set Ad Code</button>
-          </div>
-          <div class="current-value" style="word-break:break-all;">Current: <span id="current-monetag-adcode"></span></div>
-        </div>
-        <div style="font-size:13px;color:#888;">
-          <b>How to use?</b><br>
-          Paste your Monetag (or any ad network) ad code here.
-        </div>
       </div>
     </div>
     <div class="admin-footer">
@@ -263,7 +222,7 @@
     </div>
   </div>
   <script>
-    // Firebase config (এডমিন প্যানেলে ইউজার লোডের জন্য)
+    // Firebase config
     const firebaseConfig = {
       apiKey: "AIzaSyCB4GocXMbka1e8NSEiJnsEkKm39_t6KRE",
       authDomain: "earnx25-admin.firebaseapp.com",
@@ -274,20 +233,6 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-
-    // Monetag Ad Code Control (Firebase-এ সেভ)
-    db.ref('adcode').once('value', function(snapshot) {
-      let monetagAdCode = snapshot.val() || '';
-      document.getElementById('current-monetag-adcode').textContent = monetagAdCode ? monetagAdCode : 'Not set';
-    });
-    function setMonetagAdCode() {
-      let val = document.getElementById('monetag-adcode-input').value.trim();
-      if(val) {
-        db.ref('adcode').set(val);
-        document.getElementById('current-monetag-adcode').textContent = val;
-        alert("Monetag ad code updated!");
-      }
-    }
 
     // Notice
     let notice = localStorage.getItem('notice') || "Welcome to Nobin's EarnX! 🎉";
@@ -313,7 +258,7 @@
         alert("Enter a valid number!");
       }
     }
-    // Point to Dollar Rate Control
+    // Point to Dollar Rate
     let ratePerPoint = parseFloat(localStorage.getItem('ratePerPoint') || '0.05');
     document.getElementById('current-rate').textContent = ratePerPoint;
     function setRate() {
@@ -321,7 +266,7 @@
       if(!isNaN(val) && val > 0) {
         localStorage.setItem('ratePerPoint', val);
         document.getElementById('current-rate').textContent = val;
-        alert("Point to dollar rate updated!");
+        alert("Rate updated!");
       } else {
         alert("Enter a valid number!");
       }
@@ -392,6 +337,7 @@
         alert(`Withdraw for ${w.name} rejected!`);
       }
     }
+
     // User List (Firebase থেকে)
     function loadUsersFromFirebase() {
       db.ref('users').once('value', function(snapshot) {
